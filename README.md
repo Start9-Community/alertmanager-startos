@@ -63,7 +63,7 @@ The `chown` oneshot gives `data/` to `nobody` on every start, since StartOS moun
 The package keeps the user's configuration and its own settings apart, and builds the file Alertmanager reads from both on every start.
 
 - **`main/config/alertmanager.yml`** (YAML, kept verbatim with comments). Seeded at install with a single `default` receiver that every alert routes to. Written only by **Edit Configuration**, which validates first; a hand edit survives but is not validated until the next start.
-- **`/etc/alertmanager/alertmanager.yml`** in the subcontainer (no model). Regenerated on every start from the file above plus `store.json`: when SMTP is configured, the `global.smtp_*` keys are overwritten with the package's values, and when a recipient is set an `email_configs` entry is appended to the receiver named `default` (created if missing). Never edit this copy; it does not survive a restart.
+- **`/etc/alertmanager/alertmanager.yml`** in the subcontainer (no model). Regenerated on every start from the file above plus `store.json`: when SMTP is configured, all `global.smtp_*` keys are replaced with the selected SMTP settings (including removing unselected authentication and TLS options), and when a recipient is set an `email_configs` entry is appended to the receiver named `default` (created if missing). Never edit this copy; it does not survive a restart.
 - **`startos/store.json`** (JSON). `adminPassword` (written by **Set Admin Password**), `smtp` and `emailTo` (written by **Email Alerts**).
 - **`public/credentials.json`** (JSON). `apiKey`, generated at init whenever it is missing. Deleting it rotates the key on the next init; dependents restart onto the new one.
 
