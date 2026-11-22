@@ -1,3 +1,4 @@
+import { isIPv6 } from 'node:net'
 import { SmtpSelection, T, utils, YAML } from '@start9labs/start-sdk'
 import { i18n } from './i18n'
 import { sdk } from './sdk'
@@ -38,6 +39,7 @@ export const generatePassword = () =>
 /**
  * Overlays the package-managed SMTP settings and email receiver onto the
  * user's configuration. Throws on YAML that is not a mapping.
+ * Package-selected SMTP replaces every `global.smtp_*` setting.
  */
 export function effectiveConfig(
   userConfig: string,
@@ -50,7 +52,11 @@ export function effectiveConfig(
   }
   if (smtp) {
     const global = { ...(config.global ?? {}) }
-    global.smtp_smarthost = `${smtp.host}:${smtp.port}`
+    for (const key of Object.keys(global)) {
+      if (key.startsWith('smtp_')) delete global[key]
+    }
+    const host = isIPv6(smtp.host) ? `[${smtp.host}]` : smtp.host
+    global.smtp_smarthost = `${host}:${smtp.port}`
     global.smtp_from = smtp.from
     global.smtp_require_tls = true
     global.smtp_force_implicit_tls = smtp.security === 'tls'
