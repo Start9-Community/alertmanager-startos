@@ -1,6 +1,7 @@
 import { credentialsJson } from './fileModels/credentials.json'
 import { storeJson } from './fileModels/store.json'
 import { i18n } from './i18n'
+import { primaryUrl } from './primaryUrl'
 import { sdk } from './sdk'
 import {
   adminUsername,
@@ -29,6 +30,8 @@ export const setInterfaces = sdk.setupInterfaces(async ({ effects }) => {
     proxy: { auth: { type: 'basic', credentials, realm: proxyRealm } },
   })
 
+  const preferredLauncherAddress = await primaryUrl.bestUsable(effects).const()
+
   const ui = sdk.createInterface(effects, {
     name: i18n('Web UI'),
     id: 'ui',
@@ -41,6 +44,7 @@ export const setInterfaces = sdk.setupInterfaces(async ({ effects }) => {
     username: null,
     path: '',
     query: {},
+    preferredLauncherAddress,
   })
 
   return [await uiOrigin.export([ui])]

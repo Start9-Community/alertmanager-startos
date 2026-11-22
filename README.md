@@ -41,7 +41,7 @@ The package runs the upstream image unmodified, with the package supplying the c
 | Entrypoint    | `alertmanager` with package-set flags; runs as `nobody`                                     |
 | Subcontainer  | `alertmanager-sub` — runs the `chown` oneshot, then the `alertmanager` daemon               |
 
-The command line fixes the config path (`/etc/alertmanager/alertmanager.yml`), the storage path (`/alertmanager`), the listen address (`:9093`), and disables clustering (`--cluster.listen-address=`). `SSL_CERT_FILE` points at a bundle of the image's CA certificates plus this server's root CA, so webhooks to other services on this server's HTTPS addresses verify.
+The command line fixes the config path (`/etc/alertmanager/alertmanager.yml`), the storage path (`/alertmanager`), the listen address (`:9093`), `--web.external-url` from **Set Primary URL**, and disables clustering (`--cluster.listen-address=`). `SSL_CERT_FILE` points at a bundle of the image's CA certificates plus this server's root CA, so webhooks to other services on this server's HTTPS addresses verify.
 
 Inspect the running instance with `start-cli package attach alertmanager -n alertmanager-sub -- <cmd>`; `amtool` is available inside.
 
@@ -53,7 +53,7 @@ Three volumes hold the user's configuration and Alertmanager's state, the packag
 | --------- | --------------------------- | --------------- | -------------------------------------------------------------- |
 | `main`    | `config/alertmanager.yml`   | not mounted     | The user's configuration, as written by Edit Configuration     |
 | `main`    | `data/`                     | `/alertmanager` | Silences and the notification log (`silences`, `nflog`)        |
-| `startos` | `store.json`                | not mounted     | Admin password, SMTP selection, email recipient                |
+| `startos` | `store.json`                | not mounted     | Admin password, SMTP selection, email recipient, primary URL   |
 | `public`  | `credentials.json`          | not mounted     | `apiKey`, read by dependent services                           |
 
 The `chown` oneshot gives `data/` to `nobody` on every start, since StartOS mounts volumes root-owned.
@@ -64,7 +64,7 @@ The package keeps the user's configuration and its own settings apart, and build
 
 - **`main/config/alertmanager.yml`** (YAML, kept verbatim with comments). Seeded at install with a single `default` receiver that every alert routes to. Written only by **Edit Configuration**, which validates first; a hand edit survives but is not validated until the next start.
 - **`/etc/alertmanager/alertmanager.yml`** in the subcontainer (no model). Regenerated on every start from the file above plus `store.json`: when SMTP is configured, all `global.smtp_*` keys are replaced with the selected SMTP settings (including removing unselected authentication and TLS options), and when a recipient is set an `email_configs` entry is appended to the receiver named `default` (created if missing). Never edit this copy; it does not survive a restart.
-- **`startos/store.json`** (JSON). `adminPassword` (written by **Set Admin Password**), `smtp` and `emailTo` (written by **Email Alerts**).
+- **`startos/store.json`** (JSON). `adminPassword` (written by **Set Admin Password**), `smtp` and `emailTo` (written by **Email Alerts**), and `primaryUrl` (written by **Set Primary URL**; unset means the preferred address).
 - **`public/credentials.json`** (JSON). `apiKey`, generated at init whenever it is missing. Deleting it rotates the key on the next init; dependents restart onto the new one.
 
 A change to the configuration or `store.json` restarts Alertmanager.
@@ -93,11 +93,12 @@ The admin password must be created before the service can start, and the upstrea
 
 ## Actions
 
-Three actions cover the login, the routing configuration and email delivery.
+Four actions cover the login, the routing configuration, email delivery, and the address notifications link to.
 
 - **Set Admin Password** — run at install (task) and whenever the password should change. Generates a 32-character password, stores it in `store.json`, and returns it. The proxy picks it up immediately without restarting Alertmanager; the old password stops working. Safe to repeat; each run replaces the password.
 - **Edit Configuration** — run to add receivers (webhooks, chat integrations, extra email recipients), routes, inhibition rules or templates. Builds the effective configuration, runs `amtool check-config` in a temporary container, and saves only if it passes; the rejection message is amtool's. Saving restarts Alertmanager (a few seconds; silences persist). Safe to repeat.
 - **Email Alerts** — run to send alerts by email. Takes the standard StartOS SMTP choice (disabled, system SMTP, or custom) and a recipient, which is required unless SMTP is disabled. Validates the resulting configuration with `amtool` like **Edit Configuration**, then writes `store.json` and restarts Alertmanager. Email goes to whatever routes reach the `default` receiver, which in the seeded configuration is every alert. Choosing **Disabled** stops the package's email: its SMTP settings and the recipient are left out of the effective configuration, and the action refuses if an email receiver added by hand still needs them.
+- **Set Primary URL** — run when the links in notifications should open a particular address, such as a public domain. The SDK's standard primary-URL action: it offers the Web UI's addresses, and while none is chosen, or the chosen one is gone, Alertmanager uses the preferred address (a public domain, else `.local`). Passed as `--web.external-url`; saving restarts Alertmanager. Safe to repeat.
 
 ## Tasks
 
@@ -121,8 +122,7 @@ A restore brings back the configuration, silences, the notification log, the adm
 
 1. **Single instance only.** Clustering is disabled; high-availability pairs are not supported.
 2. **SMTP keys are package-owned.** `global.smtp_*` values written by hand in **Edit Configuration** are overwritten whenever **Email Alerts** has SMTP configured.
-3. **Links in notifications point at the container.** `--web.external-url` is not set, so "view in Alertmanager" links in notifications use the container's hostname and do not open from a browser.
-4. **The login is enforced by StartOS, not Alertmanager.** Alertmanager's own `--web.config.file` authentication is not used.
+3. **The login is enforced by StartOS, not Alertmanager.** Alertmanager's own `--web.config.file` authentication is not used.
 
 ---
 
@@ -150,6 +150,7 @@ actions:
   - set-admin-password
   - edit-config
   - email-alerts
+  - set-primary-url
 tasks:
   - { action: set-admin-password, severity: critical }
 health_checks:

@@ -1,3 +1,4 @@
+import { primaryUrl } from '../primaryUrl'
 import { sdk } from '../sdk'
 import { editConfig } from './editConfig'
 import { emailAlerts } from './emailAlerts'
@@ -7,3 +8,4 @@ export const actions = sdk.Actions.of()
   .addAction(setAdminPassword)
   .addAction(editConfig)
   .addAction(emailAlerts)
+  .addAction(primaryUrl.action)

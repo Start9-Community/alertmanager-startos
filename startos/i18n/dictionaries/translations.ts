@@ -27,6 +27,10 @@ export default {
     22: 'Alertas por correo',
     23: 'Envía alertas por correo a través del servidor SMTP de StartOS o del suyo propio. Añade el destinatario al receptor "${receiver}".',
     24: 'Introduzca un destinatario para enviar alertas por correo.',
+    25: 'Establecer URL principal',
+    26: 'Elija la dirección que Alertmanager usa en los enlaces de sus notificaciones. Alertmanager se reinicia para aplicar el cambio.',
+    27: 'URL principal',
+    28: 'Se usa en los enlaces de las notificaciones. Todas las direcciones de la interfaz web funcionan en el navegador independientemente de este ajuste.',
   },
   de_DE: {
     0: 'Alertmanager wird gestartet!',
@@ -54,6 +58,10 @@ export default {
     22: 'E-Mail-Alarme',
     23: 'Sendet Alarme per E-Mail über den SMTP-Server von StartOS oder Ihren eigenen. Fügt den Empfänger dem Receiver "${receiver}" hinzu.',
     24: 'Geben Sie einen Empfänger ein, um Alarme per E-Mail zu senden.',
+    25: 'Primäre URL festlegen',
+    26: 'Wählen Sie die Adresse, die Alertmanager in den Links seiner Benachrichtigungen verwendet. Alertmanager startet neu, um die Änderung zu übernehmen.',
+    27: 'Primäre URL',
+    28: 'Wird für Links in Benachrichtigungen verwendet. Jede Adresse der Weboberfläche funktioniert im Browser unabhängig von dieser Einstellung.',
   },
   pl_PL: {
     0: 'Uruchamianie Alertmanagera!',
@@ -81,6 +89,10 @@ export default {
     22: 'Alerty e-mail',
     23: 'Wysyłaj alerty e-mailem przez serwer SMTP StartOS lub własny. Dodaje adresata do odbiorcy "${receiver}".',
     24: 'Podaj adresata, aby wysyłać alerty e-mailem.',
+    25: 'Ustaw główny adres URL',
+    26: 'Wybierz adres, którego Alertmanager używa w linkach w powiadomieniach. Alertmanager uruchamia się ponownie, aby zastosować zmianę.',
+    27: 'Główny adres URL',
+    28: 'Używany w linkach w powiadomieniach. Każdy adres interfejsu webowego działa w przeglądarce niezależnie od tego ustawienia.',
   },
   fr_FR: {
     0: "Démarrage d'Alertmanager !",
@@ -108,5 +120,9 @@ export default {
     22: 'Alertes par e-mail',
     23: 'Envoie les alertes par e-mail via le serveur SMTP de StartOS ou le vôtre. Ajoute le destinataire au récepteur « ${receiver} ».',
     24: 'Saisissez un destinataire pour envoyer les alertes par e-mail.',
+    25: "Définir l'URL principale",
+    26: "Choisissez l'adresse qu'Alertmanager utilise dans les liens de ses notifications. Alertmanager redémarre pour appliquer la modification.",
+    27: 'URL principale',
+    28: "Utilisée pour les liens des notifications. Chaque adresse de l'interface web fonctionne dans le navigateur, quel que soit ce réglage.",
   },
 } satisfies Record<string, LangDict>

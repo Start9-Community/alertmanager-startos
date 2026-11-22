@@ -28,6 +28,7 @@ Open the **Web UI** interface and log in. The **Alerts** page shows what is firi
 
 - **Set Admin Password** — creates a new password for the Web UI. Run it again any time you want to change the password; the old one stops working right away.
 - **Email Alerts** — chooses the email server and the address alerts are sent to. Choose **Disabled** to stop email.
+- **Set Primary URL** — the address the links in notifications open. Choose the address you reach Alertmanager from away from home, such as a public domain, if you read alerts there.
 - **Edit Configuration** — edits Alertmanager's configuration file directly, for anything beyond email: webhooks, chat services such as Telegram or Slack, different destinations for different alerts, and rules that suppress one alert while another is firing. Your changes are checked before they are saved, and you see the error if anything is wrong. The configuration format is described in the upstream documentation.
 
 ### Sending alerts from other tools

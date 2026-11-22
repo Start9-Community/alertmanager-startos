@@ -2,6 +2,7 @@ import { readFile } from 'node:fs/promises'
 import { alertmanagerYml } from './fileModels/alertmanager.yml'
 import { storeJson } from './fileModels/store.json'
 import { i18n } from './i18n'
+import { primaryUrl } from './primaryUrl'
 import { sdk } from './sdk'
 import {
   caBundlePath,
@@ -26,6 +27,7 @@ export const main = sdk.setupMain(async ({ effects }) => {
       ? await sdk.getSystemSmtp(effects).const()
       : null
   const smtp = smtpValue(store.smtp, system)
+  const externalUrl = await primaryUrl.bestUsable(effects).const()
 
   const subcontainer = sdk.SubContainer.of(
     effects,
@@ -70,6 +72,7 @@ export const main = sdk.setupMain(async ({ effects }) => {
           `--config.file=${configPath}`,
           '--storage.path=/alertmanager',
           `--web.listen-address=:${uiPort}`,
+          ...(externalUrl ? [`--web.external-url=${externalUrl}`] : []),
           '--cluster.listen-address=',
         ],
         env: { SSL_CERT_FILE: caBundlePath },

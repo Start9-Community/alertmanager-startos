@@ -32,6 +32,11 @@ const dict = {
   'Email Alerts': 22,
   'Send alerts by email through the StartOS SMTP server or your own. Adds the recipient to the "${receiver}" receiver.': 23,
   'Enter a recipient to send alerts by email.': 24,
+  // primaryUrl.ts
+  'Set Primary URL': 25,
+  'Choose the address Alertmanager puts in the links in its notifications. Alertmanager restarts to apply the change.': 26,
+  'Primary URL': 27,
+  'Used for links in notifications. Every address of the Web UI works in the browser regardless of this setting.': 28,
 } as const
 
 /**

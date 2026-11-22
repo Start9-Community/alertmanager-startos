@@ -5,6 +5,7 @@ const shape = z.looseObject({
   adminPassword: z.string().optional().catch(undefined),
   smtp: smtpShape,
   emailTo: z.string().nullable().catch(null),
+  primaryUrl: z.string().nullable().catch(null),
 })
 
 export const storeJson = FileHelper.json(
